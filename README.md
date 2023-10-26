@@ -1,12 +1,4 @@
-# OctoPrint Stuff
-
-This is a collection of bits and bobs that make running Octoprint a tad easier.
-
-The most notable component is webcamd which is a minimalist drop-in replacement for `mjpeg_streamer`.
-
-* Octoprint appends a seemingly-random session ID to the camera URI, which confuses the hell out of `mjpg-streamer`
-* `mjpg-streamer` doesn't appear to be capable of handle multiple simultaneous streams, resulting in the infuriating `403: Forbidden! frame already sent` error
-* `mjpg-streamer` itself is complete overkill here
+# BRT Cam
 
 `webcamd` is based on Igor Maculan’s *“Simple Python Motion Jpeg”* [daemon](https://gist.github.com/n3wtron/4624820). It has been reworked to run under python-3.x, accept command-line arguments, to fine-tune the webcam streaming experience.
 
@@ -50,9 +42,9 @@ Wants=network.online.target
 
 [Service]
 Type=simple
-User=octoprint
-Group=octoprint
-ExecStart=/usr/bin/webcamd
+User=webcambrt
+Group=webcambrt
+ExecStart=/usr/local/bin/webcamd
 ExecStop=killall -u webcam webcamd
 
 [Install]
