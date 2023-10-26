@@ -31,8 +31,6 @@ setuptools.setup(
         "Topic :: System :: Networking :: Monitoring :: Hardware Watchdog"
     ],
     install_requires=[
-        "opencv-python == 4.5.3.56",
-        "PIL-Tools == 1.1.0"
     ],
     extras_require={
         "dev": [
