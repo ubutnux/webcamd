@@ -42,8 +42,8 @@ Wants=network.online.target
 
 [Service]
 Type=simple
-User=webcambrt
-Group=webcambrt
+User=brt
+Group=brt
 ExecStart=/usr/local/bin/webcamd
 ExecStop=killall -u webcam webcamd
 
