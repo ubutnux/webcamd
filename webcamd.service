@@ -5,9 +5,9 @@ Wants=network.online.target
 
 [Service]
 Type=simple
-User=octoprint
-Group=octoprint
-ExecStart=/usr/bin/webcamd
+User=brt
+Group=brt
+ExecStart=/usr/local/bin/webcamd
 ExecStop=killall -u octoprint webcamd
 
 [Install]
