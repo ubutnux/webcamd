@@ -3,14 +3,17 @@ import sys
 import time
 import socket
 import argparse
-from . import APP_NAME, APP_DESCRIPTION
+#from . import APP_NAME, APP_DESCRIPTION
 from PIL import Image
 from io import BytesIO
 from socketserver import ThreadingMixIn
 from http.server import BaseHTTPRequestHandler, HTTPServer
+import camera_zwo_asi
+import datetime
 
 capture = None
-
+camera = camera_zwo_asi.Camera(0)
+font = cv2.FONT_HERSHEY_PLAIN
 
 class CamHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -20,10 +23,19 @@ class CamHandler(BaseHTTPRequestHandler):
         self.end_headers()
         while True:
             try:
-                rc, img_bgr = capture.read()
-                if not rc:
-                    continue
-                img=cv2.cvtColor(img_bgr,cv2.COLOR_BGR2RGB)
+                #rc, img_bgr = capture.read()
+                #if not rc:
+                #    continue
+                #img=cv2.cvtColor(img_bgr,cv2.COLOR_BGR2RGB)
+                image = camera.capture()
+                img = image.get_image()
+                img = cv2.rotate(img, cv2.ROTATE_180)
+                dt = datetime.datetime.now().strftime('BRTCam:  %d/%m/%Y %H:%M:%S WIB')
+                img = cv2.putText(img, dt,
+                            (20, 20),
+                            font, 1,
+                            (210, 155, 155),
+                            1, cv2.LINE_8)
                 jpg = Image.fromarray(img)
                 tmpFile = BytesIO()
                 jpg.save(tmpFile, 'JPEG')
@@ -32,7 +44,7 @@ class CamHandler(BaseHTTPRequestHandler):
                 self.send_header('Content-length', str(sys.getsizeof(tmpFile)))
                 self.end_headers()
                 self.wfile.write(tmpFile.getvalue())
-                time.sleep(0.05)
+                time.sleep(0.5)
             except KeyboardInterrupt | BrokenPipeError:
                 break
 
@@ -48,8 +60,7 @@ class ThreadedHTTPServerV6(ThreadedHTTPServer):
 def main():
     global capture
 
-    parser = argparse.ArgumentParser(prog=APP_NAME,
-                                     description=APP_DESCRIPTION,
+    parser = argparse.ArgumentParser(
                                      allow_abbrev=False)
     parser.add_argument('--width',
                         type=int,
@@ -81,12 +92,6 @@ def main():
                         help='Port listen on (default: 8090)')
     args = parser.parse_args()
 
-    # Set up the webcam device
-    capture = cv2.VideoCapture(args.device)
-    capture.set(cv2.CAP_PROP_FRAME_WIDTH, args.width)
-    capture.set(cv2.CAP_PROP_FRAME_HEIGHT, args.height)
-    capture.set(cv2.CAP_PROP_FPS, args.fps)
-
     # Start the HTTP server
     try:
         server = ThreadedHTTPServer((args.host, args.port), CamHandler)
@@ -94,7 +99,6 @@ def main():
         server.serve_forever()
     except KeyboardInterrupt:
         print('Stopping server...')
-        capture.release()
         server.socket.close()
 
 
